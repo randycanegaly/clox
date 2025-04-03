@@ -1,5 +1,5 @@
 #ifndef clox_value_h
-#define clox_valud_h
+#define clox_value_h
 
 #include "common.h"
 
@@ -14,6 +14,6 @@ typedef struct {//a dynamic array holding values
 void initValueArray(ValueArray* array);
 void writeValueArray(ValueArray* array, Value value); 
 void freeValueArray(ValueArray* array); 
-
+void printValue(Value value);
 
 #endif
