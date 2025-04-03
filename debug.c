@@ -24,7 +24,7 @@ int disassembleInstruction(Chunk* chunk, int offset) {//will initially be offset
                                                           //simpleInstruction will return the offset to the next instruction
         default:
             printf("Unknown opcode %d\n", instruction);
-            return offset + 1;  //we know a simple instruction is only one byte, so bump the offset by one byte and return it
+            return offset + 1;  //we assume that this error/unknown instruction is only one byte, so bump the offset by one byte and return it
                                 //that's what increments the loop condition above
     }
 }
