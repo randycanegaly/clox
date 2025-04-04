@@ -5,7 +5,7 @@
 
 void disassembleChunk(Chunk* chunk, const char* name) {
     printf("== %s ==\n", name);//print a header for the debug output
-    for (int offset; offset < chunk->count;) {//don't increment in the loop condition, the function call below gives the new offset
+    for (int offset = 0; offset < chunk->count;) {//don't increment in the loop condition, the function call below gives the new offset
         offset = disassembleInstruction(chunk, offset);
     }
 }
@@ -26,6 +26,15 @@ static int simpleInstruction(const char* name, int offset) {
 
 int disassembleInstruction(Chunk* chunk, int offset) {//will initially be offset = 0
     printf("%04d ", offset);//print a header for debug output
+    if (offset > 0 && chunk->lines[offset] == chunk->lines[offset - 1]) {
+        printf("   | ");//has to be greater than 0 or -1 will error. If the line number for this byte equals the line number
+                        //for the previous byte, then the two bytes appear on the same line and we have to indicate that
+                        //with a '|'
+    }  else {
+        printf("%4d ", chunk->lines[offset]);//print the line number of the instruction for the byte at offset
+    }
+
+
     uint8_t instruction = chunk->code[offset];//the fixed-size 8-bit integer of the instruction at the offset position in the array that code points to
     switch (instruction) {//switch on the integer value
         case OP_CONSTANT:

@@ -19,7 +19,7 @@ void writeValueArray(ValueArray* array, Value value) {
     array->values[array->count] = value;//since array is zero-indexed, if count is 4, and we want to add a new value
                                         //array->count is actually the fifth position ... 0, 1, 2, 3, 4 and so the
                                         //new value is added at the first new open position in the newly grown array
-    array->count;
+    array->count++;
 }
 
 
