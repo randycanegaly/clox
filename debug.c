@@ -39,9 +39,10 @@ int disassembleInstruction(Chunk* chunk, int offset) {//will initially be offset
     switch (instruction) {//switch on the integer value
         case OP_CONSTANT:
             return constantInstruction("OP_CONSTANT", chunk, offset);
+        case OP_NEGATE:
+            return simpleInstruction("OP_NEGATE", offset);
         case OP_RETURN:
             return simpleInstruction("OP_RETURN", offset);//OP_RETURN is a simple instruction with no operands. 
-                                                          //simpleInstruction will return the offset to the next instruction
         default:
             printf("Unknown opcode %d\n", instruction);
             return offset + 1;  //we assume that this error/unknown instruction is only one byte, so bump the offset by one byte and return it
