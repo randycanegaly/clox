@@ -25,7 +25,7 @@ void push(Value value) {
     vm.stackTop++;//move the stack top pointer (indicator) to where the next push will occur
 }
 
-int pop() {
+Value pop() {
     vm.stackTop--;
     return *vm.stackTop;
 }
@@ -62,7 +62,10 @@ static InterpretResult run() {
                 push(constant);
                 break;
             } 
-            case OP_NEGATE: push(-pop()); break; 
+            case OP_NEGATE: { 
+                push(-pop()); 
+                break; 
+            }
             case OP_RETURN:  {
                 printValue(pop());
                 printf("\n");
