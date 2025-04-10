@@ -38,12 +38,12 @@ static InterpretResult run() {
                                                                  //READ_BYTE() gets the byte value that ip points to,
                                                                  //in this case it will be the byte for an index into the values dynamic array
                                                                  //So READ_CONSTANT() returns the actual constant value at that index
+
+#define BINARY_OP(op) do { double b = pop(); double a = pop(); push(a op b); } while (false)
+
     for (;;) {
 #ifdef DEBUG_TRACE_EXECUTION
-        if (vm.stack == vm.stackTop)
-            printf("        [ Stack is Empty ]");
-        else
-            printf("        ");
+        printf("        ");
 
         for (Value* slot = vm.stack; slot < vm.stackTop; slot++) {
             printf("[ ");
@@ -62,6 +62,10 @@ static InterpretResult run() {
                 push(constant);
                 break;
             } 
+            case OP_ADD: BINARY_OP(+); break;
+            case OP_SUBTRACT: BINARY_OP(-); break;
+            case OP_MULTIPLY: BINARY_OP(*); break;
+            case OP_DIVIDE: BINARY_OP(/); break;
             case OP_NEGATE: { 
                 push(-pop()); 
                 break; 
@@ -76,6 +80,7 @@ static InterpretResult run() {
 
 #undef READ_BYTE
 #undef READ_CONSTANT
+#undef BINARY_OP
 }
 
 InterpretResult interpret(Chunk* chunk) {
