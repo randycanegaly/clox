@@ -28,6 +28,19 @@ static char advance() {
   return scanner.current[-1];
 }
 
+// just look and return the current character
+static char peek() { return *scanner.current; }
+
+/*
+ *if end of source string, the next character is the null character
+ *return the next character ahead - a one space lookahead
+ */
+static char peekNext() {
+  if (isAtEnd())
+    return '\0';
+  return scanner.current[1];
+}
+
 /*
 if at end of source string, no match
 advance would have pushed current ahead by 1
@@ -63,7 +76,36 @@ static Token errorToken(const char *message) {
   return token;
 }
 
+static void skipWhiteSpace() {
+  for (;;) {
+    char c = peek();
+    switch (c) {
+    case ' ':
+    case '\r':
+    case '\t':
+      advance();
+      break;
+    case '\n':
+      scanner.line++;
+      advance();
+      break;
+    case '/':
+      if (peekNext() == '/') {
+        // a comment goes until the end of the line
+        while (peek() != '\n' && !isAtEnd())
+          advance();
+      } else {
+        return;
+      }
+      break;
+    default:
+      return;
+    }
+  }
+}
+
 Token scanToken() {
+  skipWhiteSpace();
   scanner.start = scanner.current;
 
   if (isAtEnd())
