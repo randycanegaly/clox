@@ -18,7 +18,7 @@ void compile(const char *source) {
                       // print the 'same line' marker
     }
     printf("%2d '%.*s'\n", token.type, token.length,
-           token.start); // print out a description of the token scanner
+           token.start); // print out a description of the token
     // integer 2 characters wide, string of max length token.length as pointed
     // to by token.start
 
