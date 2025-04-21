@@ -1,8 +1,10 @@
-#include <execution>
 #include <stdbool.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/types.h>
 
+#include "chunk.h"
 #include "common.h"
 #include "compiler.h"
 #include "scanner.h"
@@ -14,7 +16,25 @@ typedef struct {
   bool panicMode;
 } Parser;
 
+typedef enum {
+  PREC_NONE,
+  PREC_ASSIGNMENT,
+  PREC_OR,
+  PREC_AND,
+  PREC_EQUALITY,
+  PREC_COMPARISON,
+  PREC_TERM,
+  PREC_FACTOR,
+  PREC_UNARY,
+  PREC_CALL,
+  PREC_PRIMARY
+} Precedence;
+
 Parser parser;
+// module global variable of the chunk we're currently compiling
+Chunk *compilingChunk;
+
+static Chunk *currentChunk() { return compilingChunk; }
 
 static void errorAt(Token *token, const char *message) {
   if (parser.panicMode)
@@ -61,8 +81,71 @@ static void consume(TokenType type, const char *message) {
   errorAtCurrent(message);
 }
 
+static void emitByte(u_int8_t byte) {
+  writeChunk(currentChunk(), byte, parser.previous.line);
+}
+
+static void emitBytes(u_int8_t byte1, u_int8_t byte2) {
+  emitByte(byte1);
+  emitByte(byte2);
+}
+
+static void emitReturn() { emitByte(OP_RETURN); }
+
+static u_int8_t makeConstant(Value value) {
+  int constant = addConstant(currentChunk(), value);
+  if (constant > UINT8_MAX) {
+    errorAtCurrent("Too many constants in one chunk.");
+    return 0;
+  }
+
+  return (u_int8_t)constant; // returns the index of the constant
+}
+
+static void emitConstant(Value value) {
+  emitBytes(OP_CONSTANT, makeConstant(value));
+}
+
+static void endCompiler() { emitReturn(); }
+
+static void expression();
+// static ParseRule* getRule(TokenType type);
+static void parsePrecedence(Precedence precedence);
+
+static void grouping() {
+  expression();
+  consume(TOKEN_RIGHT_PAREN, "Expect ')' after expression");
+}
+
+static void number() {
+  double value = strtod(parser.previous.start, NULL);
+  emitConstant(value);
+}
+
+static void unary() {
+  TokenType operatorType = parser.previous.type;
+
+  // compile the operand
+  parsePrecedence(PREC_UNARY);
+  // emit the operator instruction
+  switch (operatorType) {
+  case TOKEN_MINUS:
+    emitByte(OP_NEGATE);
+    break;
+  default:
+    return;
+  }
+}
+
+static void parsePrecedence(Precedence precedence) {
+  // What goes here?
+}
+
+static void expression() { parsePrecedence(PREC_ASSIGNMENT); }
+
 bool compile(const char *source, Chunk *chunk) {
   initScanner(source);
+  compilingChunk = chunk;
 
   parser.hadError = false;
   parser.panicMode = false;
@@ -70,5 +153,6 @@ bool compile(const char *source, Chunk *chunk) {
   advance();
   expression();
   consume(TOKEN_EOF, "Expect end of expression.");
+  endCompiler();
   return !parser.hadError;
 }
