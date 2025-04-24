@@ -8,17 +8,17 @@
 #include "common.h"
 #include "vm.h"
 
-static void repl() {
+static void repl() { // 1. got to here because only one command line argument
   char line[1024];
   for (;;) {
     printf("> ");
 
-    if (!fgets(line, sizeof(line), stdin)) {
+    if (!fgets(line, sizeof(line), stdin)) { // get one line from stdin
       printf("\n");
       break;
     }
 
-    interpret(line);
+    interpret(line); // pass the line of source
   }
 }
 
@@ -60,6 +60,8 @@ static char *runFile(const char *path) {
     exit(66);
   if (result == INTERPRET_RUNTIME_ERROR)
     exit(70);
+
+  return "runFile return";
 }
 
 int main(int argc, const char *argv[]) {

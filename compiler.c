@@ -224,6 +224,7 @@ ParseRule rules[] = {
     [TOKEN_EOF] = {NULL, NULL, PREC_NONE},
 };
 
+// from expression() below, passing PREC_ASSIGNMENT precedence
 static void parsePrecedence(Precedence precedence) {
   advance();
   ParseFn prefixRule = getRule(parser.previous.type)->prefix;
@@ -232,12 +233,12 @@ static void parsePrecedence(Precedence precedence) {
     return;
   }
 
-  prefixRule();
+  prefixRule(); // function pointer to parse a prefix operator
 
   while (precedence <= getRule(parser.current.type)->precedence) {
     advance();
     ParseFn infixRule = getRule(parser.previous.type)->infix;
-    infixRule();
+    infixRule(); // function pointer to parse an infix operator
   }
 }
 
@@ -245,6 +246,8 @@ static ParseRule *getRule(TokenType type) { return &rules[type]; }
 
 static void expression() { parsePrecedence(PREC_ASSIGNMENT); }
 
+// from vm.c #117
+// have line of source and a chunk to load it into
 bool compile(const char *source, Chunk *chunk) {
   initScanner(source);
   compilingChunk = chunk;
@@ -255,6 +258,6 @@ bool compile(const char *source, Chunk *chunk) {
   advance();
   expression();
   consume(TOKEN_EOF, "Expect end of expression.");
-  endCompiler();
+  endCompiler(); // done parsing, will emit and OP_RETURN op code
   return !parser.hadError;
 }

@@ -31,6 +31,7 @@ Value pop() {
   return *vm.stackTop;
 }
 
+// called in interpret() below after parsing occured and we have a loaded chunk
 static InterpretResult run() {
 #define READ_BYTE()                                                            \
   (*vm.ip++) // get the value of the thing (byte) that ip points to and then
@@ -73,7 +74,11 @@ static InterpretResult run() {
 #endif
 
     uint8_t instruction;
-    switch (instruction = READ_BYTE()) {
+    switch (instruction = READ_BYTE()) { // get the byte that the instruction
+                                         // pointer points to
+      // switch on whatever that op code is, the case's will push values onto
+      // the stack the last value pushed is the value of the expression entered
+      // in stdin
     case OP_CONSTANT: {
       Value constant = READ_CONSTANT();
       push(constant);
@@ -96,7 +101,8 @@ static InterpretResult run() {
       break;
     }
     case OP_RETURN: {
-      printValue(pop());
+      printValue(
+          pop()); // last one, prints the top value of the stack - the result
       printf("\n");
       return INTERPRET_OK;
     }
@@ -108,18 +114,24 @@ static InterpretResult run() {
 #undef BINARY_OP
 }
 
+// from main.c #21
 InterpretResult interpret(const char *source) {
   Chunk chunk;
   initChunk(&chunk);
 
+  // we have a line of source and a chunk to load it into
   if (!compile(source, &chunk)) {
     freeChunk(&chunk);
     return INTERPRET_COMPILE_ERROR;
   }
 
-  vm.chunk = &chunk;
-  vm.ip = vm.chunk->code;
+  vm.chunk = &chunk;      // makes parsed loaded chunk available in the global
+  vm.ip = vm.chunk->code; // sets instruction pointer in the global
 
+  // at this point, compile() above succeeded so the local chunk variable has
+  // been loaded with op codes and constant values. Now we need to take those op
+  // codes and constants and calculate what their values are. That is done in
+  // run()
   InterpretResult result = run();
 
   freeChunk(&chunk);
