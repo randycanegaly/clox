@@ -3,17 +3,29 @@
 
 #include "common.h"
 
-typedef double Value;//renames an existing type to 'Value'
+typedef enum {
+  VAL_BOOL,
+  VAL_NIL,
+  VAL_NUMBER,
+} ValueType;
 
-typedef struct {//a dynamic array holding values
-    int capacity;
-    int count;
-    Value* values;
+typedef struct {
+  ValueType type;
+  union {
+    bool boolean;
+    double number;
+  } as;
+} Value;
+
+typedef struct { // a dynamic array holding values
+  int capacity;
+  int count;
+  Value *values;
 } ValueArray;
 
-void initValueArray(ValueArray* array);
-void writeValueArray(ValueArray* array, Value value); 
-void freeValueArray(ValueArray* array); 
+void initValueArray(ValueArray *array);
+void writeValueArray(ValueArray *array, Value value);
+void freeValueArray(ValueArray *array);
 void printValue(Value value);
 
 #endif
