@@ -17,6 +17,10 @@ typedef struct {
   } as;
 } Value;
 
+#define BOOL_VAL(value) ((Value){VAL_BOOL, {.boolean = value}})
+#define NIL_VAL ((Value){VAL_NIL, {.number = 0}})
+#define NUMBER_VAL(value) ((Value){VAL_NUMBER, {.number = value}})
+
 typedef struct { // a dynamic array holding values
   int capacity;
   int count;
