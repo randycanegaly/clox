@@ -10,9 +10,9 @@ typedef struct {
   Chunk *chunk;
   uint8_t *ip;            // a pointer to the next instruction to be be executed
   Value stack[STACK_MAX]; // stack is an array of Values of size STACK_MAX
-  Value
-      *stackTop; // a pointer to a Value, the element one past the element at
-                 // the top of the stack - the spot where the next push will go
+  Value *stackTop;
+  // a pointer to a Value, the element one past the element at
+  // the top of the stack - the spot where the next push will go
 } VM;
 
 typedef enum {
