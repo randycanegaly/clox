@@ -1,5 +1,6 @@
 #include <complex.h>
 #include <stdarg.h>
+#include <stdbool.h>
 #include <stddef.h>
 #include <stdio.h>
 
@@ -62,6 +63,15 @@ Value pop() {
 // dereference it to get the value there and return that value
 static Value peek(int distance) { return vm.stackTop[-1 - distance]; }
 
+static bool isFalsey(Value value) {
+  // or shortcuts
+  // so, if it is NIL then return true - falsey
+  // otherwise check the right-hand side
+  // if it's a bool and true then right-hand side is true && false so false, not
+  // falsey if it's a bool and false then right-hand side is true && true so
+  // true, is falsey
+  return IS_NIL(value) || (IS_BOOL(value) && !AS_BOOL(value));
+}
 // called in interpret() below after parsing occured and we have a loaded chunk
 static InterpretResult run() {
 #define READ_BYTE()                                                            \
@@ -139,6 +149,9 @@ static InterpretResult run() {
       break;
     case OP_DIVIDE:
       BINARY_OP(NUMBER_VAL, /);
+      break;
+    case OP_NOT:
+      push(BOOL_VAL(isFalsey(pop())));
       break;
     case OP_NEGATE:
       if (!IS_NUMBER(peek(0))) {
