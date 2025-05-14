@@ -111,14 +111,23 @@ static InterpretResult run() {
     uint8_t instruction;
     switch (instruction = READ_BYTE()) { // get the byte that the instruction
                                          // pointer points to
-      // switch on whatever that op code is, the case's will push values onto
+      // switch on whatever that op code is, the cases will push values onto
       // the stack the last value pushed is the value of the expression entered
-      // in stdin
+      // in stdin when in repl
     case OP_CONSTANT: {
       Value constant = READ_CONSTANT();
       push(constant);
       break;
     }
+    case OP_NIL:
+      push(NIL_VAL);
+      break;
+    case OP_TRUE:
+      push(BOOL_VAL(true));
+      break;
+    case OP_FALSE:
+      push(BOOL_VAL(false));
+      break;
     case OP_ADD:
       BINARY_OP(NUMBER_VAL, +);
       break;
