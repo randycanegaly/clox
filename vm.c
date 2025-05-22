@@ -112,7 +112,7 @@ static InterpretResult run() {
     disassembleInstruction(
         vm.chunk,
         (int)(vm.ip -
-              vm.chunk->code)); // as instructions are executed in the chunk, ip
+              vm.chunk->code)); // as instructions are examined in the chunk, ip
                                 // moves along - increases this pointer math is
                                 // the offset, the distance the ip is from the
                                 // start of the chunk

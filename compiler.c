@@ -237,6 +237,7 @@ ParseRule rules[] = {
     [TOKEN_EQUAL] = {NULL, NULL, PREC_NONE},
     [TOKEN_EQUAL_EQUAL] = {NULL, binary, PREC_EQUALITY},
     [TOKEN_GREATER] = {NULL, binary, PREC_COMPARISON},
+    //[TOKEN_GREATER] = {NULL, binary, PREC_NONE},
     [TOKEN_GREATER_EQUAL] = {NULL, binary, PREC_COMPARISON},
     [TOKEN_LESS] = {NULL, binary, PREC_COMPARISON},
     [TOKEN_LESS_EQUAL] = {NULL, binary, PREC_COMPARISON},
@@ -264,6 +265,13 @@ ParseRule rules[] = {
 };
 
 // from expression() below, passing PREC_ASSIGNMENT precedence
+// this will parse any expression at the passed precedence level or higher
+// parsing means it will keep digesting tokens
+// so, in 4 > 3, when parser.previous.type = '>'
+// precedence passed is PREC_ASSIGNMENT and
+// parser.current.type --> precedence is PREC_COMPARISON
+// below, PREC_ASSIGNMENT is less than PREC_COMPARISON
+// so the while loop below runs and we keep consuming tokens
 static void parsePrecedence(Precedence precedence) {
   advance();
   ParseFn prefixRule = getRule(parser.previous.type)->prefix;
