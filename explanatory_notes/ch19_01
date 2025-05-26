@@ -1,0 +1,37 @@
+string() called when TOKEN_STRING seen
+emitConstant(OBJ_VAL(copyString())) - calls emitBytes - see OBJ_VAL and subsequent below
+ EmitBytes() - calls EmitByte() for two bytes - OP_CONSTANT op code and the Value passed to it
+  EmitByte() - calls writeChunk() for a byte
+    writeChunk() - takes chunk, byte to write and line number, checks if chunk has capacity, changes capacity if needed, puts byte and line number into chunk 
+      GROWCAPACITY - resets array capacity to a new value
+      GROWARRAY - gets type, pointer, oldCount, desired newCount and calls reallocate with that information
+        reallocate() - calls realloc
+          realloc() - deallocates object of a pointer and returns a pointer to a new one of the passed in size
+      add byte to chunk 
+      add lines to chunk
+OBJ_VAL() - creates a value of type VAL_OBJ, setting .obj in its union to the pointer passed in
+  copyString() - grabs the string lexeme, calls ALLOCATE() to get an array on the heap, copies the string lexeme into into  it
+    ALLOCATE() - calls allocateString
+    allocateString() - calls ALLOCATE_OBJ() to get a pointer to the "parent" Obj* - 'inheritance', sets ObjString's length and chars array and then returns an ObjString pointer
+      ALLOCATE_OBJ() - calls allocateObject() 
+        allocateObject() - calls reallocate, which in this case acts like malloc() - returns a pointer to Obj, sets Obj's type
+
+So the gist of this is:
+TOKEN_STRING is seen
+get a pointer to an initialized Obj
+use that as 'parent' object, create an ObjString and initalize its string things, including its array of chars - which is an array of chars on the heap
+get a pointer to that initialized ObjString
+Take that pointer to ObjString and populate a Value of type VAL_OBJ
+Give that VAL_OBJ Value to emitConstant
+which will wind up putting that new Value in the chunk's constants array
+so now we have a Value object in the chunk, and that Value's union's .obj pointer point to the chars array on the heap
+
+see TOKEN_STRING -> grab lexeme -> put lexeme string on the heap -> create a Value that has a pointer to that string on the heap -> put that Value in the chunk
+
+Pointer to a string in the heap is now in the chunk
+
+
+
+
+
+

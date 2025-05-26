@@ -37,6 +37,8 @@ struct ObjString {
   char *chars;
 };
 
+ObjString *copyString(const char *chars, int length);
+
 // ch19 it's a Value with type VAL_OBJ
 // && get the type of its Obj
 // compare it to the type passed in
