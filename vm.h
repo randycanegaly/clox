@@ -13,6 +13,7 @@ typedef struct {
   Value *stackTop;
   // a pointer to a Value, the element one past the element at
   // the top of the stack - the spot where the next push will go
+  Obj *objects; // head of the linked list of objects
 } VM;
 
 typedef enum {
@@ -20,6 +21,11 @@ typedef enum {
   INTERPRET_COMPILE_ERROR,
   INTERPRET_RUNTIME_ERROR
 } InterpretResult;
+
+// extern says to the compiler - this is a declaration, the definition is
+// elsewhere as required, then vm is defined only one place, in vm.c when
+// object.c #includes vm.h, it gets access to vm to use
+extern VM vm;
 
 void initVM();
 void freeVM();
